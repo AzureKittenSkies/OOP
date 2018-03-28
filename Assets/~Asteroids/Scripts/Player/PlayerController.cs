@@ -8,15 +8,32 @@ namespace Asteroids
     {
 
         public Moving movement;
+        public Shooting shoot;
 
         // Use this for initialization
         void Start()
         {
+            movement = GetComponent<Moving>();
+        }
 
+        void Update()
+        {
+            Shoot();
+            Movement();
+        }
+
+        void Shoot()
+        {
+            // Check if space is pressed
+            if (Input.GetKey(KeyCode.Space))
+            {
+                // Fire in the direction of the player's up
+                shoot.Fire();
+            }
         }
 
         // Update is called once per frame
-        void Update()
+        void Movement()
         {
             float inputH = Input.GetAxis("Horizontal");
             // linear interpolation;
@@ -31,9 +48,14 @@ namespace Asteroids
             //  1   == W || UpArrow
 
 
-            if (inputV == 1)
+            if (inputV > 0)
             {
                 movement.Accelerate(transform.up);
+            }
+
+            if (inputV < 0)
+            {
+                movement.Accelerate(-transform.up);
             }
 
             if (Input.GetKey(KeyCode.A))
