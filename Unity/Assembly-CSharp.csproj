@@ -6,7 +6,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{7056E223-B944-7F6B-F00D-1CE9B20A7FD5}</ProjectGuid>
+    <ProjectGuid>{CD8C9303-404B-FB8D-6B9B-21988D5CAC0A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -46,12 +46,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\!Globals\Scripts\KeepWithinScreen.cs" />
      <Compile Include="Assets\~Asteroids\Scripts\AsteroidSpawner.cs" />
      <Compile Include="Assets\~Asteroids\Scripts\GameManager.cs" />
      <Compile Include="Assets\~Asteroids\Scripts\Player\Moving.cs" />
      <Compile Include="Assets\~Asteroids\Scripts\Player\PlayerController.cs" />
      <Compile Include="Assets\~Asteroids\Scripts\Player\Shooting.cs" />
      <Compile Include="Assets\~Asteroids\Scripts\Screenwrap.cs" />
+     <Compile Include="Assets\~Breakout\Scripts\Ball.cs" />
+     <Compile Include="Assets\~Breakout\Scripts\BrickHandler.cs" />
+     <Compile Include="Assets\~Breakout\Scripts\BrickSpawner.cs" />
+     <Compile Include="Assets\~Breakout\Scripts\Paddle.cs" />
      <Compile Include="Assets\~Minesweeper2D\Scripts\Grid.cs" />
      <Compile Include="Assets\~Minesweeper2D\Scripts\Tile.cs" />
  <Reference Include="UnityEngine.UI">
