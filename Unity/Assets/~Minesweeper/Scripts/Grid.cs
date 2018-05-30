@@ -23,11 +23,27 @@ namespace Minesweeper
 
         void Update()
         {
+
             // check if mouse button is pressed 
             if (Input.GetMouseButtonDown(0))
             {
-                // run the method for selecting tiles
-                SelectATile();
+                // play audio clip
+                audio.Play();
+                // generate a ray from teh camera with mouse position
+                Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+                // perform raycast
+                RaycastHit2D hit = Physics2D.Raycast(mouseRay.origin, mouseRay.direction);
+                // if the mouse hit something
+                if (hit.collider != null)
+                {
+                    // try getting  a tile component from the thing we hit
+                    Tile hitTile = hit.collider.GetComponent<Tile>();
+                    // check if the thing it hit was a tile
+                    if (hitTile != null)
+                    {
+                        SelectTile(hitTile);
+                    }
+                }
             }
         }
 
@@ -72,8 +88,8 @@ namespace Minesweeper
                     tile.x = x;
                     tile.y = y;
                     // store tile in array at those coordinates
-                    tiles[x, y] = tile; 
-                    
+                    tiles[x, y] = tile;
+
                 }
             }
         }
@@ -108,30 +124,109 @@ namespace Minesweeper
             return count;
         }
 
-        void SelectATile()
+        void FFuncover(int x, int y, bool[,] visited)
         {
-            // play audio clip
-            audio.Play();
-            // generate a ray from teh camera with mouse position
-            Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            // perform raycast
-            RaycastHit2D hit = Physics2D.Raycast(mouseRay.origin, mouseRay.direction);
-            // if the mouse hit something
-            if (hit.collider != null)
+            // is x and y within bounds of the grid
+            if (x >= 0 && y >= 0 && x < width && y < height)
             {
-                // try getting  a tile component from the thing we hit
-                Tile hitTile = hit.collider.GetComponent<Tile>();
-                // check if the thing it hit was a tile
-                if (hitTile != null)
+                // have these cooridnates ben visited?
+                if (visited[x, y])
                 {
-                    // get a count of all mines around the hit tile
-                    int adjacentMines = GetAdjacentMineCount(hitTile);
-                    // reveal what that hit tile is
-                    hitTile.Reveal(adjacentMines);
+                    return;
+                }
+                // reveal tile in that x an y coodinate
+                Tile tile = tiles[x, y];
+                int adjacentMines = GetAdjacentMineCount(tile);
+                tile.Reveal(adjacentMines);
+
+                // if there were no adjacent mines around that tile
+                if (adjacentMines == 0)
+                {
+                    // this tile has been visited
+                    visited[x, y] = true;
+                    FFuncover(x - 1, y, visited);
+                    FFuncover(x + 1, y, visited);
+                    FFuncover(x, y - 1, visited);
+                    FFuncover(x, y + 1, visited);
                 }
             }
-            
         }
+
+        // uncovers all mines in the grid
+        void UncoverMines(int mineState = 0)
+        {
+            // loop through 2D array
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    Tile tile = tiles[x, y];
+                    // check if tile is a mine
+                    if (tile.isMine)
+                    {
+                        // reveal that tile
+                        int adjacentMines = GetAdjacentMineCount(tile);
+                        tile.Reveal(adjacentMines, mineState);
+                    }
+                }
+            }
+        }
+
+        // scans the grid to check if there are no more empty tiles
+        bool NoMoreEmptyTiles()
+        {
+            // set empty tile count to zero
+            int emptyTileCount = 0;
+            // loop through 2D array
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    Tile tile = tiles[x, y];
+                    // if tile is not revealed and not a mine
+                    if (!tile.isRevealed && !tile.isMine)
+                    {
+                        // we found an empty tile 
+                        emptyTileCount += 1;
+                    }
+                }
+            }
+            // if there are empty tiles return true
+            // if there are no empty tiles return fales
+            return emptyTileCount == 0;
+        }
+
+        // uncovers a selected tile
+        void SelectTile(Tile selected)
+        {
+            int adjacentMines = GetAdjacentMineCount(selected);
+            selected.Reveal(adjacentMines);
+
+            // is the selected tiule a mine?
+            if (selected.isMine)
+            {
+                // uncover all mines 
+                UncoverMines();
+            }
+
+            // otherwise are there no mines around this tile?
+            else if (adjacentMines == 0)
+            {
+                int x = selected.x;
+                int y = selected.y;
+                // then use flood fill to uncover all adjacent mines
+                FFuncover(x, y, new bool[width, height]);
+            }
+
+            // are there no more empty tiles in the game at this point?
+            if (NoMoreEmptyTiles())
+            {
+                // uncover all mines, with the win state 1
+                UncoverMines(1);
+                // win
+            }
+        }
+
 
     }
 }
